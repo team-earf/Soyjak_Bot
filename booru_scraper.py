@@ -7,7 +7,6 @@ import requests
 import logging
 from bs4 import BeautifulSoup
 import os
-import re
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
