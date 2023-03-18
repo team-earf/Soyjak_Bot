@@ -1,6 +1,6 @@
 """
 This module scrapes every available soyjak file from 'booru.soy'. It saves the files to '/soyjaks/' and
-the posts' tags to '/soyjak_tags/'.
+the posts' tags to '/soyjak_tags/' (well, not yet).
 """
 
 import requests
