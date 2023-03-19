@@ -1,3 +1,7 @@
+"""
+Populates a directory that sorts all post ID's by the tags they are associated with.
+"""
+
 import os
 import json
 import logging
