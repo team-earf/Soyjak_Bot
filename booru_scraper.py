@@ -1,6 +1,6 @@
 """
 This module scrapes every available soyjak file from 'booru.soy'. It saves the files to '/soyjaks/' and
-the posts' tags to '/soyjak_tags/'.
+the posts' tags to '/soyjak_tags/' (well, not yet).
 """
 
 import requests
@@ -19,7 +19,7 @@ class BooruPost:
 
     def __init__(self, post_id):
         self.post_id = post_id
-        self.page_url = "http://booru.soy/post/view/" + str(post_id)
+        self.page_url = f"http://booru.soy/post/view/{post_id}"
         self.page = requests.get(self.page_url)
         self.page_soup = BeautifulSoup(self.page.text, "html.parser")
         self.image_url = self.page_soup.find("input", {"id": "text_image-src"}).get("value")
@@ -34,18 +34,22 @@ class BooruPost:
 
         response = requests.get(self.image_url)
 
-        with open(f'soyjaks/Soyjak #{self.post_id}.{self.file_ext}', 'wb') as f:
+        soyjak_directory = "soyjaks"
+        soyjak_filepath = os.path.join(soyjak_directory, f"Soyjak #{self.post_id}.{self.file_ext}")
+
+        with open(soyjak_filepath, 'wb') as f:
             f.write(response.content)
 
     def save_tags(self):
         """
         Saves the tags of the post to a JSON file. If the file doesn't exist, it creates it, then saves it.
         Each post's tags are saved as a dictionary with the post ID as the key and the tags as the list of values.
-        Saved in batches of 5,000.
+        Saved in batches of 10,000.
         """
 
-        tag_library_number = int(self.post_id / 5000)
-        tag_filepath = f"soyjak_tags/tags{tag_library_number}.json"
+        tag_library_number = int(self.post_id / 10000)
+        tag_directory = "soyjak_tags"
+        tag_filepath = os.path.join(tag_directory, f"tags{tag_library_number}.json")
 
         if not os.path.exists(tag_filepath):
             tags = {f"{self.post_id}": self.post_tags}
@@ -74,8 +78,8 @@ def get_latest_booru_post():
     catalog_page_soup = BeautifulSoup(catalog_page.text, "html.parser")
     catalog_image_list = catalog_page_soup.find("div", {"class": "shm-image-list"})
     catalog_images = catalog_image_list.findChildren("a")
-    latest_post_number = int(catalog_images[0]["data-post-id"])
 
+    latest_post_number = int(catalog_images[0]["data-post-id"])
     logging.info(f"Maximum amount of soyjaks: {latest_post_number:,d}")
 
     return latest_post_number
@@ -84,7 +88,6 @@ def get_latest_booru_post():
 def number_to_start_off():
     """
     Looks at soyjaks that were already downloaded (if any) to determing where to start back on the booru.
-    :return: int
     """
     downloaded_soyjaks = os.listdir("soyjaks")
 
@@ -112,14 +115,13 @@ if __name__ == "__main__":
     current_post_id = number_to_start_off()
 
     while current_post_id <= post_limit:
+        booru_post = BooruPost(current_post_id)
         try:
-            BooruPost(current_post_id).download()
+            booru_post.download()
             logging.info(f"Download successful!")
 
-            BooruPost(current_post_id).save_tags()
+            booru_post.save_tags()
             logging.info(f"Saved tags successfully!")
-
         except:
             logging.error(f"Something wrong with #{current_post_id}, skipping...")
-
         current_post_id += 1
