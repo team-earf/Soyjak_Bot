@@ -1,6 +1,6 @@
 """
 This module scrapes every available soyjak file from 'booru.soy'. It saves the files to '/soyjaks/' and
-the posts' tags to '/soyjak_tags/' (well, not yet).
+the posts' tags to '/soyjak_tags/'.
 """
 
 import requests
@@ -84,6 +84,7 @@ def get_latest_booru_post():
 def number_to_start_off():
     """
     Looks at soyjaks that were already downloaded (if any) to determing where to start back on the booru.
+    :return: int
     """
     downloaded_soyjaks = os.listdir("soyjaks")
 
