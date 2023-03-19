@@ -7,6 +7,7 @@ import requests
 import logging
 from bs4 import BeautifulSoup
 import os
+import json
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
@@ -23,9 +24,12 @@ class BooruPost:
         self.page_soup = BeautifulSoup(self.page.text, "html.parser")
         self.image_url = self.page_soup.find("input", {"id": "text_image-src"}).get("value")
         self.file_ext = self.image_url.split(".")[-1]
-        self.post_tags = self.page_soup.find("span", {"class": "view"}).text
+        self.post_tags = self.page_soup.find("span", {"class": "view"}).text.split(" ")
 
     def download(self):
+        """
+        Downloads the image of the post to the 'soyjaks' folder.
+        """
         logging.info(f"Trying #{self.post_id} at {self.page_url}")
 
         response = requests.get(self.image_url)
@@ -33,10 +37,36 @@ class BooruPost:
         with open(f'soyjaks/Soyjak #{self.post_id}.{self.file_ext}', 'wb') as f:
             f.write(response.content)
 
+    def save_tags(self):
+        """
+        Saves the tags of the post to a JSON file. If the file doesn't exist, it creates it, then saves it.
+        Each post's tags are saved as a dictionary with the post ID as the key and the tags as the list of values.
+        Saved in batches of 10,000.
+        """
+
+        tag_library_number = int(self.post_id / 10000)
+        tag_filepath = f"soyjak_tags/tags{tag_library_number}.json"
+
+        if not os.path.exists(tag_filepath):
+            tags = {f"{self.post_id}": self.post_tags}
+
+            with open(tag_filepath, 'w') as f:
+                json.dump(tags, f, indent=4)
+
+        else:
+            with open(tag_filepath, 'r') as f:
+                tags = json.load(f)
+
+            tags[f"{self.post_id}"] = self.post_tags
+
+            with open(tag_filepath, 'w') as f:
+                json.dump(tags, f, indent=4)
+
 
 def get_latest_booru_post():
     """
     Returns the highest post number from booru. soy by finding the latest file uploaded to the catalog.
+    :return: int
     """
 
     catalog_page_url = "http://booru.soy/post/list"
@@ -83,7 +113,11 @@ if __name__ == "__main__":
     while current_post_id <= post_limit:
         try:
             BooruPost(current_post_id).download()
-            logging.info(f"Success!")
+            logging.info(f"Download successful!")
+
+            BooruPost(current_post_id).save_tags()
+            logging.info(f"Saved tags successfully!")
+
         except:
             logging.error(f"Something wrong with #{current_post_id}, skipping...")
 
