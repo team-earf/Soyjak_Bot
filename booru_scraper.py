@@ -24,7 +24,7 @@ class BooruPost:
         self.page_soup = BeautifulSoup(self.page.text, "html.parser")
         self.image_url = self.page_soup.find("input", {"id": "text_image-src"}).get("value")
         self.file_ext = self.image_url.split(".")[-1]
-        self.post_tags = self.page_soup.find("span", {"class": "view"}).text.split(" ")
+        self.post_tags = self.page_soup.find("span", {"class": "view"}).text.split(" ")  # splits string into list
 
     def download(self):
         """
