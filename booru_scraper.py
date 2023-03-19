@@ -44,10 +44,10 @@ class BooruPost:
         """
         Saves the tags of the post to a JSON file. If the file doesn't exist, it creates it, then saves it.
         Each post's tags are saved as a dictionary with the post ID as the key and the tags as the list of values.
-        Saved in batches of 10,000.
+        Saved in batches of 5,000.
         """
 
-        tag_library_number = int(self.post_id / 10000)
+        tag_library_number = int(self.post_id / 5000)
         tag_directory = "soyjak_tags"
         tag_filepath = os.path.join(tag_directory, f"tags{tag_library_number}.json")
 
