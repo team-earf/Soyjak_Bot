@@ -84,6 +84,7 @@ def get_latest_booru_post():
 def number_to_start_off():
     """
     Looks at soyjaks that were already downloaded (if any) to determing where to start back on the booru.
+    :return: int
     """
     downloaded_soyjaks = os.listdir("soyjaks")
 
