@@ -1,5 +1,5 @@
 """
-Populates a directory that sorts all post ID's by the tags they are associated with.
+Populates a directory that sorts all tags alphabetically as keys, and populates their lists of values with post ID's that are associated with them.
 """
 
 import os
