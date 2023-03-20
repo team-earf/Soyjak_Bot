@@ -106,6 +106,10 @@ def number_to_start_off():
         return soyjak_to_start_with
 
 
+def recheck_bad_soyjaks():
+    pass
+
+
 # Script starts here if traditionally ran.
 if __name__ == "__main__":
     post_limit = get_latest_booru_post()
