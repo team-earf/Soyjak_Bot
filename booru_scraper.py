@@ -152,19 +152,20 @@ def recheck_missing_soyjaks():
 
             # Gets numbers of all soyjaks that are downloaded in /soyjaks/
             soyjak_list = os.listdir("soyjaks")
-            soyjak_list_numbers = [int(file.split("#")[1].split(".")[0])
-                                   for file in soyjak_list]
 
             # Checks the gaps between each downloaded soyjak.
-            for i in range(1, max(soyjak_list_numbers)):
+            for i in range(1, len(soyjak_list) - 1):
                 logging.info(f"Checking #{i}...")
+                downloaded_soyjak_numbers = [int(file.split("#")[1].split(".")[0]) for file in soyjak_list]
+                downloaded_soyjak_numbers.sort()
 
-                current_post = soyjak_list_numbers[i]
-                next_post = soyjak_list_numbers[i + 1]
-                post_gap = next_post - current_post
-                logging.info(f"{post_gap} soyjaks missing.")
+                current_post = downloaded_soyjak_numbers[i]
+                next_post = downloaded_soyjak_numbers[i + 1]
+                post_gap = int(next_post) - int(current_post) - 1
+                print(current_post, next_post, post_gap)
 
                 if post_gap > 1:
+                    logging.info(f"{post_gap} soyjaks missing between {current_post} and {next_post}.")
                     posts_to_check = list(range(current_post + 1, next_post))
                     for post in posts_to_check:
                         scrape_post(post)
