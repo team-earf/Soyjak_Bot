@@ -39,14 +39,14 @@ for file in tag_libraries:
         for tag in post_tags:
             logging.info("Processing tag: " + tag)
 
-            # Specifies the path to the alphabetical tag library.
-            first_letter = tag[0].lower()
-            # Checks if the first letter is a letter or number. If it isn't, it's set to "other".
+            # Specifies the path to the alphabetical tag library. Sorts by first 3 characters for simplicity later.
+            # If there's any special characters, sorts to "other".
+            first_three_letters = tag[:3].lower()
             pattern = re.compile("[a-zA-Z0-9]")
-            if not pattern.match(first_letter):
+            if not pattern.match(first_three_letters):
                 logging.info(
                     f"Tag starts with non-alphanumeric character: {tag}\nSorting to 'other'.")
-                first_letter = "other"
+                first_three_letters = "other"
 
             alphabetical_tag_library_dir = os.path.join(
                 tag_directory, "alphabetized")
@@ -54,7 +54,7 @@ for file in tag_libraries:
                 os.makedirs(alphabetical_tag_library_dir)
 
             alphabetical_tag_library_filepath = os.path.join(
-                alphabetical_tag_library_dir, first_letter + ".json")
+                alphabetical_tag_library_dir, first_three_letters + ".json")
 
             # Checks if the alphabetical tag library exists.
             if os.path.exists(alphabetical_tag_library_filepath):
@@ -78,7 +78,7 @@ for file in tag_libraries:
             # If the alphabetical tag library doesn't exist, it's created.
             else:
                 logging.info(
-                    "Creating new alphabetical tag library: " + first_letter + ".json")
+                    "Creating new alphabetical tag library: " + first_three_letters + ".json")
                 with open(alphabetical_tag_library_filepath, "w") as f:
                     alphabetical_tags = {tag: [post_id]}
                     # And saves the alphabetical tag library.
