@@ -119,8 +119,8 @@ if __name__ == "__main__":
     current_post_id = number_to_start_off()
 
     while current_post_id <= post_limit:
-        booru_post = BooruPost(current_post_id)
         try:
+            booru_post = BooruPost(current_post_id)
             booru_post.download()
             logging.info(f"Download successful!")
 
