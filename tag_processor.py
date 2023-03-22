@@ -1,85 +1,55 @@
 """
-Populates a directory that sorts all tags alphabetically as keys, and populates their lists of values with post ID's that are associated with them.
+This module makes a unique list of all tags in the database. 
+Other functions are available after this, such as searching by tag and comparing post IDs.
 """
 
 import os
 import json
 import logging
-import re
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Makes list of all tag libraries, excluding any subdirectories and irrelevant files.
-tag_directory = "soyjak_tags"
-tag_libraries = [file for file in os.listdir(
-    tag_directory) if file.startswith("tags")]
 
-# Points to the alphabetical tag library directory.
-try:
-    alphabetized_tag_libraries = os.listdir(
-        os.path.join(tag_directory, "alphabetized"))
-# Or makes it if it doesn't exist.
-except:
-    os.makedirs(os.path.join(tag_directory, "alphabetized"))
+def create_unique_tag_list():
+    logging.info(
+        "Creating unique tag list from all tag libraries."
+    )
 
-# Iterates through each tag library.
-logging.info("Processing tag libraries...")
-for file in tag_libraries:
-    logging.info("Processing tag library: " + file)
+    # Directories
+    tag_library_directory = "soyjak_tags"
 
-    # Loads the tag library as "tags".
-    file_path = os.path.join(tag_directory, file)
-    with open(file_path, "r") as f:
-        tags = json.load(f)
+    tag_libraries = [file for file in os.listdir(
+        tag_library_directory) if file.endswith(".json")]
 
-    # Iterates through each post in the tag library.
-    for post_id, post_tags in tags.items():
+    unique_tag_list_filepath = os.path.join(
+        tag_library_directory, "unique_tag_list.json")
 
-        # Iterates through each tag in the post.
-        for tag in post_tags:
-            logging.info("Processing tag: " + tag)
+    # Making the unique tag list
+    unique_tag_list = []
 
-            # Specifies the path to the alphabetical tag library. Sorts by first 3 characters for simplicity later.
-            # If there's any special characters, sorts to "other".
-            first_three_letters = tag[:3].lower()
-            pattern = re.compile("[a-zA-Z0-9]")
-            if not pattern.match(first_three_letters):
-                logging.info(
-                    f"Tag starts with non-alphanumeric character: {tag}\nSorting to 'other'.")
-                first_three_letters = "other"
+    # Combing through each tag library
+    for tag_library in tag_libraries:
+        logging.info(f"Processing tag library: {tag_library}")
 
-            alphabetical_tag_library_dir = os.path.join(
-                tag_directory, "alphabetized")
-            if not os.path.exists(alphabetical_tag_library_dir):
-                os.makedirs(alphabetical_tag_library_dir)
+        tag_library_path = os.path.join(tag_library_directory, tag_library)
+        with open(tag_library_path, "r") as tag_library_file:
+            tag_library_data = json.load(tag_library_file)
+            for post_id, post_tag_list in tag_library_data.items():
+                for tag in post_tag_list:
+                    if tag not in unique_tag_list:
+                        unique_tag_list.append(tag)
 
-            alphabetical_tag_library_filepath = os.path.join(
-                alphabetical_tag_library_dir, first_three_letters + ".json")
+    logging.info("Saving unique tag list to file.")
 
-            # Checks if the alphabetical tag library exists.
-            if os.path.exists(alphabetical_tag_library_filepath):
-                with open(alphabetical_tag_library_filepath, "r") as f:
-                    alphabetical_tags = json.load(f)
+    # Alphabetizing unique tags
+    unique_tag_list.sort()
 
-                # Checks if the tag exists in the alphabetical tag library.
-                if tag not in alphabetical_tags:
-                    logging.info(
-                        f"Adding new tag to alphabetical tag library: {tag}")
-                    alphabetical_tags[tag] = [post_id]
-                else:
-                    logging.info(
-                        f"Adding post to existing tag in alphabetical tag library: {tag}")
-                    alphabetical_tags[tag].append(post_id)
+    # Saving it to a file
+    with open("unique_tag_list.json", "w") as unique_tag_list_file:
+        json.dump(unique_tag_list, unique_tag_list_file, indent=4)
 
-                # Saves the alphabetical tag library.
-                with open(alphabetical_tag_library_filepath, "w") as f:
-                    json.dump(alphabetical_tags, f, indent=4)
+    return unique_tag_list
 
-            # If the alphabetical tag library doesn't exist, it's created.
-            else:
-                logging.info(
-                    "Creating new alphabetical tag library: " + first_three_letters + ".json")
-                with open(alphabetical_tag_library_filepath, "w") as f:
-                    alphabetical_tags = {tag: [post_id]}
-                    # And saves the alphabetical tag library.
-                    json.dump(alphabetical_tags, f, indent=4)
+
+unique_tag_list = create_unique_tag_list()
