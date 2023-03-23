@@ -12,10 +12,6 @@ logging.basicConfig(level=logging.INFO,
 
 
 def create_unique_tag_list():
-    logging.info(
-        "Creating unique tag list from all tag libraries."
-    )
-
     # Directories
     tag_library_directory = "soyjak_tags"
 
@@ -25,8 +21,16 @@ def create_unique_tag_list():
     unique_tag_list_filepath = os.path.join(
         tag_library_directory, "unique_tag_list.json")
 
-    # Making the unique tag list
-    unique_tag_list = []
+    # Loading the unique_tag_list if it already exists; else, creating it
+    if os.path.exists("unique_tag_list.json"):
+        logging.info("Loading unique tag list from file.")
+        with open(unique_tag_list_filepath, "r") as unique_tag_list_file:
+            unique_tag_list = json.load(unique_tag_list_file)
+    else:
+        logging.info(
+            "Creating unique tag list from all tag libraries."
+        )
+        unique_tag_list = []
 
     # Combing through each tag library
     for tag_library in tag_libraries:
@@ -46,7 +50,7 @@ def create_unique_tag_list():
     unique_tag_list.sort()
 
     # Saving it to a file
-    with open("unique_tag_list.json", "w") as unique_tag_list_file:
+    with open(unique_tag_list_filepath, "w") as unique_tag_list_file:
         json.dump(unique_tag_list, unique_tag_list_file, indent=4)
 
     return unique_tag_list
